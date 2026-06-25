@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>25HRS 補助星盤｜政府補助申請時序對照表</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Noto+Serif+TC:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c11; --bg-2:#0f121a; --panel:#141823; --panel-2:#1a1f2c;
+  --gold:#c8a24c; --gold-2:#e6c878; --gold-deep:#a6822f;
+  --gold-soft:rgba(200,162,76,.14); --gold-line:rgba(200,162,76,.30);
+  --text:#eceef3; --muted:#99a0ae; --line-soft:rgba(255,255,255,.08);
+  --serif:"Cormorant Garamond","Noto Serif TC",Georgia,serif;
+  --serif-tc:"Noto Serif TC",serif;
+  --sans:"Noto Sans TC",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{min-height:100%}
+body{
+  min-height:100dvh;
+  font-family:var(--sans); background:var(--bg); color:var(--text);
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(120% 80% at 50% -10%,rgba(200,162,76,.10),transparent 60%),
+    radial-gradient(80% 60% at 50% 120%,rgba(200,162,76,.06),transparent 60%),
+    var(--bg);
+}
+/* 星空背景 */
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:0 22px;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+
+/* 頁首 */
+header{text-align:center;padding:42px 0 10px}
+header .kao{font-family:var(--serif);font-style:italic;letter-spacing:5px;color:var(--gold);
+  font-size:.82rem;text-transform:uppercase;opacity:.9}
+header h1{font-family:var(--serif-tc);font-weight:700;font-size:clamp(1.7rem,4.4vw,2.7rem);
+  letter-spacing:3px;margin:8px 0 6px;
+  background:linear-gradient(180deg,var(--gold-2),var(--gold) 60%,var(--gold-deep));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+header .sub{color:var(--muted);font-size:.92rem;letter-spacing:1px}
+.rule{height:1px;max-width:280px;margin:18px auto 0;
+  background:linear-gradient(90deg,transparent,var(--gold-line),transparent)}
+
+/* 主舞台 */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:38px;align-items:center;
+  padding:26px 0 8px}
+@media(max-width:880px){.stage{grid-template-columns:1fr;gap:10px}}
+
+/* 星盤 */
+.dial-area{position:relative;display:flex;justify-content:center;align-items:center;
+  aspect-ratio:1/1;width:min(100%,600px);margin:8px auto 0;padding-top:6px;
+  touch-action:none;user-select:none}
+.dial-svg{width:100%;height:100%;overflow:visible;cursor:grab}
+.dial-svg.dragging{cursor:grabbing}
+#dial{transition:transform .55s cubic-bezier(.22,.61,.36,1)}
+#dial.free{transition:none}
+.month-num{font-family:var(--serif);font-weight:600;font-size:34px;
+  fill:transparent;stroke:var(--gold);stroke-width:1.1;
+  paint-order:stroke;letter-spacing:0;transition:.4s}
+.month-g.active .month-num{fill:var(--gold-2);stroke:var(--gold-2);stroke-width:.6;
+  filter:drop-shadow(0 0 10px rgba(230,200,120,.55))}
+.month-g.has .month-num{stroke:var(--gold)}
+.month-tick{stroke:var(--gold-line);stroke-width:1}
+.month-cn{font-family:var(--serif-tc);font-size:9.5px;fill:var(--muted);letter-spacing:1px}
+.month-g.active .month-cn{fill:var(--gold)}
+.dot-now{fill:var(--gold-2)}
+.ring{fill:none;stroke:var(--gold-line)}
+.ring-dim{fill:none;stroke:rgba(200,162,76,.16)}
+.flourish{fill:none;stroke:var(--gold);stroke-width:1;opacity:.55;stroke-linecap:round}
+.spark{fill:var(--gold)}
+
+/* 中央 hub */
+.hub{position:absolute;width:34%;aspect-ratio:1/1;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 38%,#11141d,#0a0c11 75%);
+  border:1px solid var(--gold-line);
+  box-shadow:0 0 0 6px rgba(10,12,17,.9),0 0 40px rgba(200,162,76,.18) inset;
+  overflow:hidden;text-align:center;pointer-events:none}
+.hub img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.22}
+.hub .m-big{position:relative;font-family:var(--serif);font-weight:600;
+  font-size:clamp(2.4rem,9vw,3.6rem);line-height:1;color:var(--gold-2);
+  text-shadow:0 0 18px rgba(200,162,76,.4)}
+.hub .m-lab{position:relative;font-family:var(--serif-tc);font-size:.66rem;letter-spacing:3px;
+  color:var(--muted);margin-top:4px}
+
+/* 指針 */
+.pointer{position:absolute;top:-2%;left:50%;transform:translateX(-50%);z-index:5;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+
+/* 資訊面板 */
+.panel{min-height:300px}
+.panel .ptag{display:inline-block;font-family:var(--serif);font-style:italic;color:var(--gold);
+  letter-spacing:3px;font-size:.78rem;text-transform:uppercase}
+.panel h2{font-family:var(--serif-tc);font-weight:700;font-size:1.9rem;letter-spacing:2px;margin:4px 0 2px}
+.panel .season{color:var(--muted);font-size:.86rem;letter-spacing:1px;margin-bottom:16px}
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid var(--line-soft);border-left:3px solid var(--gold);
+  border-radius:12px;padding:14px 16px;
+  opacity:0;transform:translateY(10px);animation:rise .5s forwards}
+.card:nth-child(2){animation-delay:.07s}
+.card:nth-child(3){animation-delay:.14s}
+.card:nth-child(4){animation-delay:.21s}
+@keyframes rise{to{opacity:1;transform:none}}
+.card .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.card .name{font-family:var(--serif-tc);font-weight:700;font-size:1.05rem;letter-spacing:.5px}
+.badge{font-size:.68rem;font-weight:700;letter-spacing:1px;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.b-open{background:rgba(120,200,140,.16);color:#86d29a;border:1px solid rgba(120,200,140,.4)}
+.b-deadline{background:rgba(224,128,108,.16);color:#e8967f;border:1px solid rgba(224,128,108,.4)}
+.b-soon{background:var(--gold-soft);color:var(--gold-2);border:1px solid var(--gold-line)}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:8px}
+.card .meta span{font-size:.8rem;color:var(--muted)}
+.card .meta b{color:var(--text);font-weight:500}
+.card .focus{font-size:.86rem;color:var(--text);line-height:1.6;padding-top:8px;
+  border-top:1px dashed var(--line-soft)}
+.card .focus em{font-style:normal;color:var(--gold-2);font-weight:500}
+.empty{color:var(--muted);font-size:.9rem;padding:18px 0;line-height:1.8}
+
+/* 時間軸 */
+.timeline-wrap{max-width:760px;margin:30px auto 0;padding:0 8px}
+.tl-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.tl-label .t{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:2px;font-size:.8rem}
+.tl-label .hint{color:var(--muted);font-size:.74rem;letter-spacing:1px}
+.timeline{position:relative;height:46px;touch-action:none;user-select:none;cursor:pointer}
+.tl-track{position:absolute;top:50%;left:0;right:0;height:2px;transform:translateY(-50%);
+  background:linear-gradient(90deg,transparent,var(--gold-line) 8%,var(--gold-line) 92%,transparent)}
+.tl-fill{position:absolute;top:50%;left:0;height:2px;transform:translateY(-50%);
+  background:linear-gradient(90deg,var(--gold-deep),var(--gold-2));transition:width .45s ease}
+.tl-ticks{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center}
+.tl-tick{position:relative;display:flex;flex-direction:column;align-items:center;flex:1}
+.tl-tick .d{width:7px;height:7px;border-radius:50%;background:#2a2f3c;border:1px solid var(--gold-line);
+  transition:.3s}
+.tl-tick.on .d{background:var(--gold-2);box-shadow:0 0 10px rgba(230,200,120,.6);transform:scale(1.25)}
+.tl-tick .lab{position:absolute;top:16px;font-size:.66rem;color:var(--muted);transition:.3s}
+.tl-tick.on .lab{color:var(--gold-2);font-weight:700}
+.tl-tick.hasgrant .d{border-color:var(--gold)}
+.tl-handle{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;
+  transform:translate(-50%,-50%);background:radial-gradient(circle at 40% 35%,var(--gold-2),var(--gold-deep));
+  box-shadow:0 0 0 4px rgba(10,12,17,.9),0 0 16px rgba(200,162,76,.55);
+  transition:left .45s cubic-bezier(.22,.61,.36,1);pointer-events:none}
+
+/* 控制提示 */
+.controls{text-align:center;margin:22px auto 0;color:var(--muted);font-size:.78rem;letter-spacing:1px}
+.controls kbd{font-family:var(--sans);background:var(--panel-2);border:1px solid var(--line-soft);
+  border-radius:6px;padding:2px 8px;color:var(--gold-2);font-size:.72rem}
+
+/* 圖例 + 頁尾 */
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;margin:26px auto 0;font-size:.76rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;display:inline-block}
+footer{text-align:center;padding:38px 22px 46px;color:var(--muted);font-size:.74rem;line-height:1.9}
+footer .brand{font-family:var(--serif);font-style:italic;color:var(--gold);letter-spacing:3px;font-size:.86rem;margin-bottom:8px}
+footer .disc{max-width:640px;margin:0 auto;opacity:.85}
+/* ====== 平板：單欄堆疊 ====== */
+@media(max-width:880px){
+  .stage{grid-template-columns:1fr;gap:6px;padding:14px 0 4px}
+  .panel{margin-top:2px}
+  /* 星盤改用視窗高度約束，避免把版面撐得太長 */
+  .dial-area{width:min(86vw,440px);margin:4px auto 6px}
+  .panel h2{font-size:1.6rem}
+  .panel .ptag{font-size:.72rem}
+  .cards{flex-direction:column}
+}
+
+/* ====== 手機直式 ====== */
+@media(max-width:560px){
+  .wrap{padding:0 16px}
+  header{padding:26px 0 6px}
+  header h1{font-size:1.9rem;letter-spacing:2px}
+  header .sub{font-size:.8rem;line-height:1.6;padding:0 6px}
+  header .kao{font-size:.7rem;letter-spacing:3px}
+  .rule{margin-top:12px}
+  .dial-area{width:min(82vw,360px)}
+  .month-num{font-size:32px}        /* SVG 隨 viewBox 縮放，這裡只是基準 */
+  .hub .m-big{font-size:2.5rem}
+  .panel{text-align:center}
+  .panel h2{font-size:1.45rem;margin-top:2px}
+  .panel .season{margin-bottom:12px}
+  .card{text-align:left;padding:13px 14px}
+  .card .name{font-size:1rem}
+  .card .meta{gap:5px 14px}
+  .card .meta span{font-size:.76rem}
+  .card .focus{font-size:.82rem}
+  .timeline-wrap{margin-top:22px}
+  .tl-tick .lab{font-size:.6rem}
+  .controls{font-size:.7rem;line-height:2;padding:0 8px}
+  .controls kbd{padding:1px 6px}
+  .legend{gap:8px 12px;font-size:.7rem;padding:0 8px}
+  footer{padding:30px 16px 40px}
+  footer .disc{font-size:.7rem}
+}
+@media(max-width:380px){
+  .dial-area{width:min(80vw,320px)}
+  header h1{font-size:1.7rem}
+}
+
+/* ====== 矮螢幕／橫式：縮小星盤，整頁不被裁 ====== */
+@media(max-height:720px) and (min-width:881px){
+  .stage{padding:10px 0}
+  .dial-area{width:min(100%,72vh)}
+  header{padding:24px 0 4px}
+}
+@media(max-height:560px){
+  .dial-area{width:min(82vw,64vh)}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+
+<div class="wrap">
+  <header>
+    <div class="kao">The 25th Hour · Grant Astrolabe</div>
+    <h1>補助星盤</h1>
+    <div class="sub">政府補助申請時序對照表　｜　轉動星盤，對齊每個月的提案窗口</div>
+    <div class="rule"></div>
+  </header>
+
+  <div class="stage">
+    <!-- 星盤 -->
+    <div class="dial-area" id="dialArea">
+      <svg class="pointer" width="30" height="34" viewBox="0 0 30 34" aria-hidden="true">
+        <path d="M15 34 L4 8 Q15 0 26 8 Z" fill="#e6c878"/>
+        <path d="M15 34 L4 8 Q15 0 26 8 Z" fill="none" stroke="#a6822f" stroke-width="1"/>
+        <circle cx="15" cy="9" r="2.6" fill="#0a0c11"/>
+      </svg>
+      <svg class="dial-svg" id="dialSvg" viewBox="-300 -300 600 600" aria-label="補助申請星盤">
+        <defs>
+          <radialGradient id="diskg" cx="50%" cy="42%" r="65%">
+            <stop offset="0%" stop-color="#12151f"/>
+            <stop offset="70%" stop-color="#0c0e15"/>
+            <stop offset="100%" stop-color="#080a0f"/>
+          </radialGradient>
+        </defs>
+        <!-- 固定外環 -->
+        <circle r="290" fill="url(#diskg)"/>
+        <circle class="ring" r="290"/>
+        <circle class="ring-dim" r="278"/>
+        <circle class="ring" r="206"/>
+        <g id="outerSparks"></g>
+        <!-- 旋轉盤 -->
+        <g id="dial">
+          <circle class="ring-dim" r="252"/>
+          <g id="ticks"></g>
+          <g id="months"></g>
+          <g id="flourishes"></g>
+        </g>
+      </svg>
+      <div class="hub">
+        <img src="assets/emblem.png" alt="25HRS">
+        <div class="m-big" id="hubNum">6</div>
+        <div class="m-lab" id="hubLab">JUNE 六月</div>
+      </div>
+    </div>
+
+    <!-- 資訊面板 -->
+    <div class="panel">
+      <div class="ptag" id="pTag">June · 第六月</div>
+      <h2 id="pTitle">六月 補助提案</h2>
+      <div class="season" id="pSeason"></div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </div>
+
+  <!-- 時間軸 -->
+  <div class="timeline-wrap">
+    <div class="tl-label">
+      <span class="t">Timeline · 拖動時間軸</span>
+      <span class="hint">一月  → 十二月</span>
+    </div>
+    <div class="timeline" id="timeline">
+      <div class="tl-track"></div>
+      <div class="tl-fill" id="tlFill"></div>
+      <div class="tl-ticks" id="tlTicks"></div>
+      <div class="tl-handle" id="tlHandle"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    拖曳星盤旋轉　·　滑鼠滾輪切換　·　點月份數字　·　鍵盤 <kbd>←</kbd> <kbd>→</kbd>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#86d29a"></i>開放提案</span>
+    <span><i style="background:#e8967f"></i>即將截止</span>
+    <span><i style="background:#e6c878"></i>開放預告／準備</span>
+    <span><i style="background:#c8a24c"></i>金圈月份＝該月有重點補助</span>
+  </div>
+
+  <footer>
+    <div class="brand">FOUR MINDS, ONE MISSION</div>
+    <div class="disc">
+      本對照表為教育與規劃參考，整理常見競爭型補助（SBIR、SIIR、SITI）、資格型補助（WLB 工作與生活平衡）與全年受理之政策性貸款的概略時序。
+      實際梯次、收件起訖與截止日，以各主管機關當年度官方公告為準。
+      25HRS 第廿五時協助提升提案品質與通過率，不協助不實申報。
+    </div>
+  </footer>
+</div>
+
+<script>
+/* ===== 補助資料（12 個月）=====
+   status：open 開放提案／deadline 即將截止／soon 開放預告或準備期 */
+const DATA = {
+  1:{season:"歲首佈局　資格型補助起跑", items:[
+    {name:"WLB 工作與生活平衡計畫", type:"資格型", status:"soon", apply:"年初公告受理", due:"首梯約二月", focus:"鎖定<em>人情味與情緒價值</em>，盤點員工數與勞健保結構，先把靠掛員工與最小微型公司模型備齊。"},
+    {name:"政策性貸款（青創／微型鳳凰）", type:"貸款", status:"open", apply:"全年受理", due:"無固定截止", focus:"年度衝刺期同步備妥<em>營運計畫書與財務試算</em>，貸款與補助雙軌並行。"},
+  ]},
+  2:{season:"WLB 第一梯　年節後送件", items:[
+    {name:"WLB 第一梯送件", type:"資格型", status:"deadline", apply:"承一月公告", due:"二月梯次截止", focus:"檢核<em>勞動條件與友善職場措施</em>，把人事費核銷邏輯寫清楚，人事費最不易被砍。"},
+    {name:"政策性貸款", type:"貸款", status:"open", apply:"全年受理", due:"無固定截止", focus:"年後資金缺口大，提早卡位<em>信保額度</em>，避免旺季排隊。"},
+  ]},
+  3:{season:"春季梯次　WLB 與服務業補助並進", items:[
+    {name:"WLB 第二梯", type:"資格型", status:"open", apply:"延續上半年", due:"依梯次公告", focus:"以<em>人情味資源</em>取得真正可用的補助，重點放在能落地的友善措施。"},
+    {name:"SIIR 服務業創新研發（上半年梯次）", type:"競爭型", status:"soon", apply:"上半年公告", due:"依當年度公告", focus:"題目先收斂到<em>服務流程創新與數位轉型</em>，委外費是主利潤來源但要寫得站得住腳。"},
+  ]},
+  4:{season:"競爭型補助暖身　簡報定稿", items:[
+    {name:"SIIR 服務業創新研發", type:"競爭型", status:"open", apply:"上半年收件中", due:"依當年度公告", focus:"<em>計畫書、簡報、核銷</em>三件一次到位，先做評審視角的痛點對焦。"},
+    {name:"WLB 第三梯", type:"資格型", status:"open", apply:"延續受理", due:"依梯次公告", focus:"把前梯核銷經驗複製，<em>標準化文件</em>縮短作業時間。"},
+  ]},
+  5:{season:"上半年收尾　補助梯次最後窗口", items:[
+    {name:"WLB 第四梯", type:"資格型", status:"deadline", apply:"上半年末梯", due:"五月前後截止", focus:"上半年最後窗口，<em>資格文件補齊</em>，錯過要等下半年。"},
+    {name:"SIIR 上半年梯次", type:"競爭型", status:"deadline", apply:"收件後期", due:"依當年度公告", focus:"進入<em>簡報與答辯</em>準備，用數據與市場驗證打動評審。"},
+  ]},
+  6:{season:"年中關鍵節點　SITI 與 SIIR 第二梯", items:[
+    {name:"SITI 創新科技應用送件", type:"競爭型", status:"open", apply:"六月送件", due:"依當年度公告", focus:"沅錞、定平公司 SITI 送件期，聚焦<em>科技應用與商模可行性</em>，先把技術亮點與營收路徑串起來。"},
+    {name:"SIIR 第二梯", type:"競爭型", status:"soon", apply:"下半年預告", due:"依當年度公告", focus:"提前佈題，<em>下半年第二梯</em>是補件衝刺的主戰場。"},
+    {name:"政策性貸款", type:"貸款", status:"open", apply:"全年受理", due:"無固定截止", focus:"年中資金盤點，<em>貸款搭配補助</em>放大現金流。"},
+  ]},
+  7:{season:"下半年啟動　SITI 接力送件", items:[
+    {name:"SITI 第二棒送件", type:"競爭型", status:"open", apply:"七月送件", due:"依當年度公告", focus:"定平 SITI 送件，沿用前一棒<em>架構與簡報模板</em>，加速產出並保品質。"},
+    {name:"地方型補助盤點", type:"競爭型", status:"soon", apply:"各縣市不定期", due:"依地方公告", focus:"盤點<em>經濟部、台北市、中小微</em>等地方資源，鎖定門檻低、撥款快的案。"},
+  ]},
+  8:{season:"題目醞釀　競爭型補助佈局", items:[
+    {name:"SBIR 小型企業創新研發（佈題）", type:"競爭型", status:"soon", apply:"下半年公告", due:"依當年度公告", focus:"<em>研發題目與技術差異化</em>定錨，SBIR 重研發實質，先把創新點寫實。"},
+    {name:"政策性貸款", type:"貸款", status:"open", apply:"全年受理", due:"無固定截止", focus:"擴編期同步準備<em>人事與設備</em>的資金規劃。"},
+  ]},
+  9:{season:"提案撰寫高峰　文件齊備", items:[
+    {name:"SBIR 計畫撰寫", type:"競爭型", status:"open", apply:"撰寫期", due:"依當年度公告", focus:"<em>計畫書骨架先行</em>，研發里程碑、查核點、經費配置一次規劃到位。"},
+    {name:"SIIR／SITI 補件追蹤", type:"競爭型", status:"open", apply:"審查中", due:"依通知", focus:"已送案件進入<em>補件與答辯</em>，依評審意見快速回應。"},
+  ]},
+  10:{season:"競爭型補助衝刺　簡報答辯", items:[
+    {name:"SBIR 送件衝刺", type:"競爭型", status:"deadline", apply:"收件後期", due:"依當年度公告", focus:"<em>簡報與口試</em>定生死，用市場數據與團隊戰力證明可行。"},
+    {name:"政策性貸款", type:"貸款", status:"open", apply:"全年受理", due:"無固定截止", focus:"配合補助配比款，<em>預留自籌與墊款</em>現金。"},
+  ]},
+  11:{season:"年度收網　SIIR 第一梯備件", items:[
+    {name:"SIIR 第一梯（隔年）準備", type:"競爭型", status:"soon", apply:"年底前備件", due:"近十二月送件", focus:"提前備齊<em>計畫書與財報</em>，搶下一年度首梯先機。"},
+    {name:"SBIR／SITI 滾動準備", type:"競爭型", status:"soon", apply:"滾動受理", due:"依當年度公告", focus:"把今年案件經驗<em>沉澱為模板</em>，明年複製提速。"},
+  ]},
+  12:{season:"歲末送件　明年梯次卡位", items:[
+    {name:"SIIR 第一梯送件", type:"競爭型", status:"deadline", apply:"十二月送件", due:"依當年度公告", focus:"年底首梯送件，<em>核銷規劃同步定案</em>，委外費比例先抓好分寸。"},
+    {name:"SBIR／SITI 明年度準備", type:"競爭型", status:"soon", apply:"備件中", due:"依當年度公告", focus:"鎖定明年<em>首季送件窗口</em>，年前把資料備齊免得年後手忙腳亂。"},
+    {name:"WLB 明年度預備", type:"資格型", status:"soon", apply:"年初公告前", due:"明年首梯", focus:"提前盤點<em>靠掛員工與勞健保</em>，年初一開放即送件。"},
+  ]},
+};
+const CN=["","一","二","三","四","五","六","七","八","九","十","十一","十二"];
+const EN=["","JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const BADGE={open:["b-open","開放提案"],deadline:["b-deadline","即將截止"],soon:["b-soon","開放預告"]};
+const NOW_MONTH=6; // 對齊系統當月（2026-06）
+
+/* ===== 建構星盤 SVG ===== */
+const R_NUM=232, R_CN=196, R_TICK_O=252, R_TICK_I=234;
+const monthsG=document.getElementById('months');
+const ticksG=document.getElementById('ticks');
+const flourG=document.getElementById('flourishes');
+const sparkG=document.getElementById('outerSparks');
+const NS="http://www.w3.org/2000/svg";
+function el(t,a){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function pt(r,deg){const a=(deg-90)*Math.PI/180;return[r*Math.cos(a),r*Math.sin(a)];}
+
+for(let i=1;i<=12;i++){
+  const ang=(i-1)*30;
+  const g=el('g',{class:'month-g'+(DATA[i]?' has':''),'data-m':i});
+  // 月份大數字（鏤空描邊）
+  const [nx,ny]=pt(R_NUM,ang);
+  const num=el('text',{class:'month-num',x:nx,y:ny,'text-anchor':'middle','dominant-baseline':'central',
+    transform:`rotate(${ang} ${nx} ${ny})`});
+  num.textContent=i;
+  // 中文月名
+  const [cx,cy]=pt(R_CN,ang);
+  const cn=el('text',{class:'month-cn',x:cx,y:cy,'text-anchor':'middle','dominant-baseline':'central',
+    transform:`rotate(${ang} ${cx} ${cy})`});
+  cn.textContent=CN[i]+"月";
+  g.appendChild(num);g.appendChild(cn);
+  // 當月小亮點
+  if(i===NOW_MONTH){const[dx,dy]=pt(266,ang);g.appendChild(el('circle',{class:'dot-now',cx:dx,cy:dy,r:3.4}));}
+  g.style.cursor='pointer';
+  g.addEventListener('click',()=>goTo(i));
+  monthsG.appendChild(g);
+  // 刻度線（分隔）
+  const[ox,oy]=pt(R_TICK_O,ang+15),[ix,iy]=pt(R_TICK_I,ang+15);
+  ticksG.appendChild(el('line',{class:'month-tick',x1:ox,y1:oy,x2:ix,y2:iy}));
+  // 內圈花飾小星
+  const[sx,sy]=pt(170,ang);
+  const star=el('path',{class:'spark',d:starPath(sx,sy,i===NOW_MONTH?4.5:3)});
+  flourG.appendChild(star);
+}
+// 外環裝飾星（四方位 + 月相點）
+for(let k=0;k<12;k++){
+  const[ex,ey]=pt(284,k*30+15);
+  sparkG.appendChild(el('circle',{class:'spark',cx:ex,cy:ey,r:k%3===0?2.4:1.3,opacity:k%3===0?.9:.5}));
+}
+// 四方位羅盤花飾
+[0,90,180,270].forEach(a=>{
+  const[x,y]=pt(220,a);
+  flourG.appendChild(el('path',{class:'flourish',d:`M ${x-10} ${y} Q ${x} ${y-14} ${x+10} ${y}`}));
+});
+function starPath(cx,cy,r){
+  let d="";for(let i=0;i<4;i++){const a=i*Math.PI/2;const a2=a+Math.PI/4;
+    const x1=cx+Math.cos(a)*r,y1=cy+Math.sin(a)*r;
+    const x2=cx+Math.cos(a2)*r*0.34,y2=cy+Math.sin(a2)*r*0.34;
+    d+=(i?"L":"M")+x1.toFixed(1)+" "+y1.toFixed(1)+"L"+x2.toFixed(1)+" "+y2.toFixed(1);}
+  return d+"Z";
+}
+
+/* ===== 互動狀態 ===== */
+const dial=document.getElementById('dial');
+const svg=document.getElementById('dialSvg');
+let current=NOW_MONTH;          // 1..12
+let rot=-(current-1)*30;        // 盤面旋轉角
+let dragging=false, lastAng=0, moved=0;
+
+function angleOf(e){
+  const r=svg.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const x=(e.touches?e.touches[0].clientX:e.clientX)-cx;
+  const y=(e.touches?e.touches[0].clientY:e.clientY)-cy;
+  return Math.atan2(y,x)*180/Math.PI;
+}
+function applyRot(){dial.setAttribute('transform',`rotate(${rot})`);}
+function activeFromRot(){
+  let a=((-rot)%360+360)%360;
+  return ((Math.round(a/30))%12)+1;
+}
+function goTo(m,animate=true){
+  m=((m-1)%12+12)%12+1;
+  // 找最短旋轉路徑
+  const target=-(m-1)*30;
+  let diff=((target-rot)%360+540)%360-180;
+  rot+=diff;
+  current=m;
+  dial.classList.toggle('free',!animate);
+  applyRot();
+  render();
+}
+svg.addEventListener('pointerdown',e=>{
+  dragging=true;moved=0;lastAng=angleOf(e);
+  dial.classList.add('free');svg.classList.add('dragging');
+  svg.setPointerCapture(e.pointerId);
+});
+svg.addEventListener('pointermove',e=>{
+  if(!dragging)return;
+  const a=angleOf(e);let d=a-lastAng;
+  if(d>180)d-=360;if(d<-180)d+=360;
+  rot+=d;moved+=Math.abs(d);lastAng=a;applyRot();
+  const m=activeFromRot();if(m!==current){current=m;render(true);}
+});
+function endDrag(e){
+  if(!dragging)return;dragging=false;svg.classList.remove('dragging');
+  const m=activeFromRot();goTo(m,true);
+}
+svg.addEventListener('pointerup',endDrag);
+svg.addEventListener('pointercancel',endDrag);
+// 滾輪切換
+let wheelLock=false;
+document.getElementById('dialArea').addEventListener('wheel',e=>{
+  e.preventDefault();if(wheelLock)return;wheelLock=true;
+  goTo(current+(e.deltaY>0?1:-1));
+  setTimeout(()=>wheelLock=false,260);
+},{passive:false});
+// 鍵盤
+window.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){goTo(current+1);}
+  if(e.key==='ArrowLeft'){goTo(current-1);}
+});
+
+/* ===== 時間軸 ===== */
+const tlTicks=document.getElementById('tlTicks');
+const tlHandle=document.getElementById('tlHandle');
+const tlFill=document.getElementById('tlFill');
+const timeline=document.getElementById('timeline');
+for(let i=1;i<=12;i++){
+  const t=document.createElement('div');
+  t.className='tl-tick'+(DATA[i]?' hasgrant':'');t.dataset.m=i;
+  t.innerHTML=`<div class="d"></div><div class="lab">${i}</div>`;
+  t.addEventListener('click',ev=>{ev.stopPropagation();goTo(i);});
+  tlTicks.appendChild(t);
+}
+function updTimeline(){
+  const pct=(current-1)/11*100;
+  tlHandle.style.left=pct+'%';
+  tlFill.style.width=pct+'%';
+  [...tlTicks.children].forEach((t,idx)=>t.classList.toggle('on',idx+1===current));
+}
+let tlDrag=false;
+function tlFromX(clientX){
+  const r=timeline.getBoundingClientRect();
+  let p=(clientX-r.left)/r.width;p=Math.max(0,Math.min(1,p));
+  return Math.round(p*11)+1;
+}
+timeline.addEventListener('pointerdown',e=>{tlDrag=true;timeline.setPointerCapture(e.pointerId);goTo(tlFromX(e.clientX));});
+timeline.addEventListener('pointermove',e=>{if(tlDrag){const m=tlFromX(e.clientX);if(m!==current)goTo(m);}});
+timeline.addEventListener('pointerup',()=>tlDrag=false);
+
+/* ===== 渲染面板 ===== */
+const cardsEl=document.getElementById('cards');
+function render(quiet){
+  // 星盤 active 樣式
+  [...monthsG.children].forEach(g=>g.classList.toggle('active',+g.dataset.m===current));
+  // hub
+  document.getElementById('hubNum').textContent=current;
+  document.getElementById('hubLab').textContent=EN[current]+" "+CN[current]+"月";
+  // 面板文字
+  document.getElementById('pTag').textContent=EN[current].charAt(0)+EN[current].slice(1).toLowerCase()+" · 第"+CN[current]+"月";
+  document.getElementById('pTitle').textContent=CN[current]+"月　補助提案";
+  const d=DATA[current];
+  document.getElementById('pSeason').textContent=d?d.season:"本月無重點競爭型梯次";
+  updTimeline();
+  // 卡片（quiet 時不重播動畫避免拖曳卡頓）
+  if(!quiet||cardsEl.dataset.m!=current){
+    cardsEl.dataset.m=current;
+    if(!d){cardsEl.innerHTML='<div class="empty">本月無重點競爭型補助梯次。<br>政策性貸款（青創、微型鳳凰、中小企業信保）全年受理，<br>建議用本月盤點資源、預備下一梯文件。</div>';return;}
+    cardsEl.innerHTML=d.items.map(it=>{
+      const b=BADGE[it.status];
+      return `<div class="card">
+        <div class="top">
+          <span class="name">${it.name}</span>
+          <span class="badge ${b[0]}">${b[1]}</span>
+        </div>
+        <div class="meta">
+          <span>類型：<b>${it.type}</b></span>
+          <span>提案：<b>${it.apply}</b></span>
+          <span>截止：<b>${it.due}</b></span>
+        </div>
+        <div class="focus">強化重點：${it.focus}</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+/* ===== 星空背景 ===== */
+const cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+let stars=[];
+function resize(){cv.width=innerWidth;cv.height=innerHeight;
+  stars=Array.from({length:Math.min(160,innerWidth/8|0)},()=>({
+    x:Math.random()*cv.width,y:Math.random()*cv.height,
+    r:Math.random()*1.3+.2,a:Math.random(),s:Math.random()*.02+.004}));}
+function tw(){ctx.clearRect(0,0,cv.width,cv.height);
+  for(const st of stars){st.a+=st.s;if(st.a>1||st.a<0)st.s*=-1;
+    ctx.globalAlpha=Math.abs(st.a)*.8+.1;ctx.fillStyle='#c8a24c';
+    ctx.beginPath();ctx.arc(st.x,st.y,st.r,0,7);ctx.fill();}
+  requestAnimationFrame(tw);}
+addEventListener('resize',resize);resize();tw();
+
+/* 初始化 */
+applyRot();render();
+</script>
+</body>
+</html>
