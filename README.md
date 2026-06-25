@@ -8,4 +8,5 @@
 
 > 本對照表為教育與規劃參考，實際梯次與截止日以各主管機關當年度官方公告為準。25HRS 協助提升提案品質與通過率，不協助不實申報。
 
-線上版：https://imnivek.github.io/25hrs-grant-astrolabe/
+線上版（主）：https://astrolabe.25hrs.tw/
+備援網址：https://imnivek.github.io/25hrs-grant-astrolabe/
